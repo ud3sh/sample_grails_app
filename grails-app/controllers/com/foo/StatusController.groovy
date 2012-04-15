@@ -1,4 +1,5 @@
 package com.foo
+import com.foo.User
 
 class StatusController {
 
@@ -11,26 +12,21 @@ class StatusController {
         status.author = lookupUser() //lookups the ucrrent user
         status.save() //saves the object to the database
         def messages = currentUserTimeline()
-        render template : 'messages', collection: messages, var: 'message'
+        render template: 'statusMessages', collection: messages, var: 'msg'
     }
     
     
     private currentUserTimeline(){
-        def usr = lookupUser()
-        Status.withCriteria {
-            or {
-                eq 'username', usr.username
-            }       
+        def per = lookupUser()
+        def query = Status.whereAny {
+            author { 
+                author { username == per.username }
+            }
         }
-        maxResults 10
-        order 'dateCreated', 'desc'
+        query.list(max: 10)
     }
     
     private lookupUser(){
-        if (springSecurityService.isLoggedIn()){
-        //springSecurityService.pricipal contains information about the currently logged in user
-            User.get(springSecurityService.principal.id)            
-        }
-        
+        return User.get(springSecurityService.principal.id)        
     }
 }

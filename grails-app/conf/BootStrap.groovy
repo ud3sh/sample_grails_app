@@ -17,16 +17,26 @@ class BootStrap {
 
     private void createData() {
         
-        //create intial data
-        def userRole = new Authority(authority: 'ROLE_USER').save()
-        def adminRole = new Authority(authority: 'ADMIN_USER').save()
+        //create intial data]
+        
+        def userRole = Authority.findByAuthority('ROLE_USER')?:new Authority(authority: 'ROLE_USER').save()
+        def adminRole = Authority.findByAuthority('ADMIN_USER')?:new Authority(authority: 'ADMIN_USER').save()
 
 
-        String password = springSecurityService.encodePassword('password')
+        String password = "password"
 
-        [user1: 'User1', user2: 'User2'].each { userName, firstName ->
-            def user = new User(username: userName, firstName: firstName, password: password, enabled: true).save()
-            UserAuthority.create user, userRole, true
-        }
+        def user1 = new User(username: "firstuser", 
+                             firstName: "First", 
+                             lastName:"User", 
+                             password: password, 
+                             enabled: true).save()
+        def user2 = new User(username: "seconduser", 
+                             firstName: "Second", 
+                             lastName:"User", 
+                             password: password, 
+                             enabled: true).save()
+
+        UserAuthority.create user1, userRole, true
+        UserAuthority.create user2, userRole, true
     }
 }
